@@ -38,7 +38,7 @@
       onChange: v => { P.fn = v; k.restart(); }
     });
     return MH.demo(root, {
-      w: 760, h: 430, sps: o.sps || 4, maxSps: 60, minSps: 1,
+      w: 760, h: 430, sps: o.sps || 4, maxSps: o.maxSps || 60, minSps: 1,
       init(k) { sim = o.make(P, k.seed); },
       step: () => sim.step(), isDone: () => sim.done,
       draw(ctx) {

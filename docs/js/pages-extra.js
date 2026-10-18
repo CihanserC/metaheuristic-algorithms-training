@@ -131,7 +131,7 @@
 
   /* ================= Ant Colony Optimization ================= */
   MH.algoPage({
-    id: 'aco', group: 'g_evo', origin: 'added',
+    id: 'aco', group: 'g_nature', origin: 'added',
     title: { tr: 'Karınca Kolonisi Optimizasyonu · TSP', en: 'Ant Colony Optimization · TSP' },
     nav: { tr: 'Karınca Kolonisi', en: 'Ant Colony' },
     blurb: { tr: 'Karıncalar feromon izi bırakır; kısa yollar daha çok iz toplar.', en: 'Ants leave pheromone trails; short routes collect more.' },
@@ -252,7 +252,7 @@
 
   /* ================= Artificial Bee Colony ================= */
   MH.algoPage({
-    id: 'abc', group: 'g_evo', origin: 'added',
+    id: 'abc', group: 'g_nature', origin: 'added',
     title: { tr: 'Yapay Arı Kolonisi (ABC)', en: 'Artificial Bee Colony (ABC)' },
     nav: { tr: 'Yapay Arı Kolonisi', en: 'Artificial Bee Colony' },
     blurb: { tr: 'İşçi, gözcü ve kâşif arıların görev paylaşımıyla çiçek alanı arar.', en: 'Employed, onlooker and scout bees share roles to search flower patches.' },
@@ -305,7 +305,7 @@
 
   /* ================= Grey Wolf Optimizer ================= */
   MH.algoPage({
-    id: 'gwo', group: 'g_evo', origin: 'added',
+    id: 'gwo', group: 'g_nature', origin: 'added',
     title: { tr: 'Gri Kurt Optimizasyonu (GWO)', en: 'Grey Wolf Optimizer (GWO)' },
     nav: { tr: 'Gri Kurt Optimizasyonu', en: 'Grey Wolf Optimizer' },
     blurb: { tr: 'Üç lider kurt (alfa, beta, delta) sürünün avı kuşatmasını yönlendirir.', en: 'Three leader wolves (alpha, beta, delta) steer the pack\'s encirclement of the prey.' },

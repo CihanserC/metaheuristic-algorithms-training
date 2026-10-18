@@ -32,7 +32,7 @@
     home: { tr: 'Ana Sayfa', en: 'Home' }, concepts: { tr: 'Temel Kavramlar', en: 'Core Concepts' }, compare: { tr: 'Karşılaştırma', en: 'Comparison' },
     g_sa: { tr: 'Tavlama Benzetimi', en: 'Simulated Annealing' }, g_ga: { tr: 'Genetik Algoritma', en: 'Genetic Algorithm' },
     g_pso: { tr: 'Sürü Zekâsı', en: 'Swarm Intelligence' }, g_local: { tr: 'Yerel Arama', en: 'Local Search' },
-    g_evo: { tr: 'Evrimsel / Doğadan Esinlenen', en: 'Evolutionary / Nature-Inspired' },
+    g_evo: { tr: 'Evrimsel / Dağılım Tabanlı', en: 'Evolutionary / Distribution-Based' }, g_nature: { tr: 'Doğadan Esinlenen', en: 'Nature-Inspired' },
     g_start: { tr: 'Başlangıç', en: 'Start' }, g_repo: { tr: 'Repodaki kodlardan', en: 'From the repository code' }, g_added: { tr: 'Eklenen algoritmalar', en: 'Added algorithms' },
     badgeRepo: { tr: 'Repodaki kod', en: 'Repository code' }, badgeAdded: { tr: 'Eklenen kod', en: 'Added code' },
     secIntuition: { tr: 'Sezgi', en: 'Intuition' }, secSteps: { tr: 'Nasıl çalışır?', en: 'How does it work?' },
