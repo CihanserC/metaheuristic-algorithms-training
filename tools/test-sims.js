@@ -1,5 +1,5 @@
 // Quick headless sanity checks for site/js/sims.js  ->  node tools/test-sims.js
-const S = require('../site/js/sims.js');
+const S = require('../docs/js/sims.js');
 const run = (st, max = 1e6) => { let n = 0; while (st.step() !== false && n++ < max); return st; };
 const R = seed => S.mulberry32(seed);
 const out = [];

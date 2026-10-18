@@ -209,8 +209,8 @@
           if (sel) sel.classList.remove('on');
           sel = btn; btn.classList.add('on');
           for (let k = it.start; k <= it.end; k++) rows[k].classList.add('hl');
-          const sc = pre; const top = rows[it.start].offsetTop - 40;
-          sc.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+          pre.scrollTo({ top: Math.max(0, rows[it.start].offsetTop - 40), behavior: 'smooth' });
+          wrap.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         });
         side.append(btn);
       });

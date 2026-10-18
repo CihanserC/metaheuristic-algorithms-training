@@ -1,13 +1,13 @@
-"""Bundles every .py file in site/code into site/js/code-data.js so the site also works from file:// (no fetch needed).
+"""Bundles every .py file in docs/code into docs/js/code-data.js so the site also works from file:// (no fetch needed).
 
-Run after editing any file in site/code:   python tools/build_code_data.py
+Run after editing any file in docs/code:   python tools/build_code_data.py
 """
 import json
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CODE_DIR = os.path.join(ROOT, 'site', 'code')
-OUT = os.path.join(ROOT, 'site', 'js', 'code-data.js')
+CODE_DIR = os.path.join(ROOT, 'docs', 'code')
+OUT = os.path.join(ROOT, 'docs', 'js', 'code-data.js')
 
 data = {}
 for name in sorted(os.listdir(CODE_DIR)):

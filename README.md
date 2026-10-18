@@ -19,30 +19,30 @@ değiştirilebilen canlı animasyon ve satır satır açıklamalı çalıştır�
 
 ## Run
 
-No build step. Open `site/index.html` in a browser, or serve the folder:
+No build step. Open `docs/index.html` in a browser, or serve the folder:
 
 ```
-cd site
+cd docs
 python -m http.server 8000      # then open http://localhost:8000
 ```
 
 ## Structure
 
 ```
-site/
+docs/
   index.html          page shell
   css/style.css       light / dark themes
   js/sims.js          pure algorithm simulations (no DOM, tested with Node)
   js/core.js          i18n, theme, router, player, charts, code viewer
   js/pages-*.js       one file per algorithm family (texts in TR + EN)
-  js/code-data.js     generated bundle of site/code/*.py
+  js/code-data.js     generated bundle of docs/code/*.py
   code/*.py           the Python sources shown on the site
 tools/
-  build_code_data.py  regenerates js/code-data.js after editing site/code
+  build_code_data.py  regenerates js/code-data.js after editing docs/code
   test-sims.js        headless sanity tests:  node tools/test-sims.js
 ```
 
-After editing a file in `site/code/`, run `python tools/build_code_data.py`.
+After editing a file in `docs/code/`, run `python tools/build_code_data.py`.
 
 ## Notes on the repository code
 
