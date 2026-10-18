@@ -9,13 +9,17 @@ değiştirilebilen canlı animasyon ve satır satır açıklamalı çalıştır�
 
 ## Algorithms / Algoritmalar
 
-| Group | Algorithm | Source |
+Live site: https://cihanserc.github.io/metaheuristic-algorithms-training/
+
+| Group | Algorithms | Source |
 |---|---|---|
-| Simulated Annealing | Function maximum, TSP, Sudoku | original repository code |
-| Genetic Algorithm | Sequence + Elitism, Knapsack, N-Queens | original repository code |
-| Swarm | Particle Swarm Optimization | original repository code |
-| Local search | Hill Climbing, Tabu Search (TSP) | added |
-| Evolutionary / nature-inspired | Ant Colony (TSP), Differential Evolution, Artificial Bee Colony, Grey Wolf Optimizer | added |
+| Simulated Annealing | Function maximum, TSP, Sudoku | original repository code (bugs fixed) |
+| Genetic Algorithm | Sequence + Elitism, Knapsack, N-Queens | original repository code (bugs fixed) |
+| Swarm | Particle Swarm Optimization | original repository code (bugs fixed) |
+| Genetic family | Memetic Algorithm | added |
+| Local search | Hill Climbing, Iterated Local Search, Variable Neighborhood Search, Great Deluge, Threshold Accepting, Tabu Search, GRASP | added |
+| Evolutionary / distribution-based | Differential Evolution, CMA-ES, PBIL, Cross-Entropy Method | added |
+| Nature-inspired | Ant Colony, Artificial Bee Colony, Grey Wolf, Firefly, Cuckoo Search, Bat, Whale, Harris Hawks, Harmony Search, TLBO | added |
 
 ## Run
 
@@ -44,9 +48,17 @@ tools/
 
 After editing a file in `docs/code/`, run `python tools/build_code_data.py`.
 
-## Notes on the repository code
+## Fixes to the repository code
 
-The original files contain a few quirks that the site points out in each "Code notes" section
-(e.g. the sign of `accept_prob` in the function annealing example, the unused `crossover_rate`, how elitism
-and the tournament are implemented, and which Sudoku cells count as fixed). The animations show the
-*intended* behaviour; the Python files are left exactly as written.
+The original files had a few bugs. They are fixed in `docs/code/` (the comments marked `# fixed:` explain each change)
+and every page lists them under "Code notes":
+
+- `SimulatedAnnealingFunction.py`: the sign of `accept_prob` was reversed for a maximisation problem (every worse state was accepted).
+- `GeneticAlgorithm*.py`: the unused `crossover_rate`; the tournament that only drew from the first 20 individuals;
+  elitism that left random individuals in the first slots and let the elite be mutated; initial genes that never contained `0`;
+  the hard-coded `CHROMOSOME_LENGTH = 4` in the knapsack; double counted attacks in N-Queens; use of the global `algorithm`.
+- `SimulatedAnnealingSudoku.py`: the given digits could be swapped away (and `sample()` could fail on a box with < 2 free cells).
+- `SimulatedAnnealingTSP.py`: a swap of a city with itself; `plot_solution` modified `best_state.tour`.
+- `ParticleSwarmOptimizationFunction.py`: velocities initialised across the whole interval; arbitrary initial swarm best.
+
+The site's SA-function demo still has a switch to reproduce the old (buggy) behaviour.

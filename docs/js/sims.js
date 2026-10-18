@@ -68,7 +68,8 @@
     st.init = st.len; st.best = st.tour.slice(); st.bestLen = st.len;
     st.step = function () {
       if (st.done) return false;
-      const i = Math.floor(rnd() * n), j = Math.floor(rnd() * n);
+      const i = Math.floor(rnd() * n);
+      let j = Math.floor(rnd() * (n - 1)); if (j >= i) j++;            // two DIFFERENT cities
       const t = st.tour.slice();
       [t[i], t[j]] = [t[j], t[i]];
       const nl = S.tourLen(cities, t);
@@ -169,8 +170,10 @@
         const a = tournament(), b = tournament();
         let s = Math.floor(rnd() * cfg.glen), e = Math.floor(rnd() * cfg.glen);
         if (s > e) [s, e] = [e, s];
+        const crossed = cfg.cross == null || rnd() < cfg.cross;                 // crossover_rate
+        if (!crossed) e = s;                                                     // empty middle part: the child is a copy of A
         const g = a.g.slice(0, s).concat(b.g.slice(s, e), a.g.slice(e));
-        if (!demo) demo = { a: a.g.slice(), b: b.g.slice(), s, e, child: g.slice(), mut: [] };
+        if (!demo) demo = { a: a.g.slice(), b: b.g.slice(), s, e, child: g.slice(), mut: [], crossed };
         next.push({ g });
       }
       next.forEach((ind, idx) => {
@@ -190,8 +193,8 @@
   };
 
   S.gaSequence = (o, rnd) => S.GA({
-    pop: o.pop, glen: 10, mut: o.mut, elite: o.elite, tour: o.tour, target: 10, maxGen: 2000,
-    init: r => 1 + Math.floor(r() * 9),          // numpy randint(1, 10)
+    pop: o.pop, glen: 10, mut: o.mut, cross: o.cross, elite: o.elite, tour: o.tour, target: 10, maxGen: 2000,
+    init: r => Math.floor(r() * 10),             // numpy randint(0, 10)
     mutGene: r => Math.floor(r() * 10),          // numpy randint(10)
     fitness: g => g.reduce((s, v, i) => s + (v === i ? 1 : 0), 0)
   }, rnd);
@@ -215,7 +218,7 @@
   S.gaKnapsack = (o, rnd) => {
     const opt = S.knapsackBest(o.weights, o.values, o.cap);
     const st = S.GA({
-      pop: o.pop, glen: o.weights.length, mut: o.mut, elite: o.elite, tour: o.tour, target: opt, maxGen: 100,
+      pop: o.pop, glen: o.weights.length, mut: o.mut, cross: o.cross, elite: o.elite, tour: o.tour, target: opt, maxGen: 100,
       init: r => Math.floor(r() * 2), mutGene: r => Math.floor(r() * 2),
       fitness: g => S.knapsackFit(g, o.weights, o.values, o.cap)
     }, rnd);
@@ -225,8 +228,7 @@
 
   S.queensPenalty = g => {
     let pen = 0;
-    for (let i = 0; i < g.length; i++) for (let j = 0; j < g.length; j++) {
-      if (i === j) continue;
+    for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) {   // every pair once
       if (g[i] === g[j]) pen++;
       if (Math.abs(i - j) === Math.abs(g[i] - g[j])) pen++;
     }
@@ -234,7 +236,7 @@
   };
   // o: {n,pop,mut,elite,tour}
   S.gaQueens = (o, rnd) => S.GA({
-    pop: o.pop, glen: o.n, mut: o.mut, elite: o.elite, tour: o.tour, target: 1, maxGen: 3000,
+    pop: o.pop, glen: o.n, mut: o.mut, cross: o.cross, elite: o.elite, tour: o.tour, target: 1, maxGen: 3000,
     init: r => Math.floor(r() * o.n), mutGene: r => Math.floor(r() * o.n),
     fitness: g => 1 / (S.queensPenalty(g) + 1)
   }, rnd);
@@ -246,10 +248,12 @@
     const f = S.psoF;
     const span = p.max - p.min;
     const parts = Array.from({ length: p.n }, () => {
-      const x = p.min + span * rnd(), v = p.min + span * rnd();
+      const x = p.min + span * rnd(), v = 0.1 * span * (rnd() * 2 - 1);   // small initial velocity (10% of the interval)
       return { x, v, bx: x, bv: 1e10 };
     });
     const st = { f, p, parts, gbx: parts[0].x, gbv: 1e10, iter: 0, hist: [], done: false };
+    for (const q of parts) { const fx = f(q.x); if (st.gbv > fx) { st.gbv = fx; st.gbx = q.x; } }   // evaluate before the first move
+    for (const q of parts) { const fx = f(q.x); if (q.bv > fx) { q.bv = fx; q.bx = q.x; } }
     st.step = function () {
       if (st.done) return false;
       for (const q of parts) {

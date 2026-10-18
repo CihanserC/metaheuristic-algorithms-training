@@ -49,7 +49,10 @@ class SimulatedAnnealing:
         if next_energy > actual_energy:
             return 1
 
-        return np.exp((actual_energy - next_energy) / temp)
+        # fixed: we are MAXIMIZING f, so a worse state has next_energy < actual_energy and the exponent must be
+        # negative. The old (actual_energy - next_energy) was positive -> exp(...) >= 1 -> every worse state was
+        # always accepted and the algorithm was a plain random search
+        return np.exp((next_energy - actual_energy) / temp)
 
     @staticmethod
     def get_energy(x):

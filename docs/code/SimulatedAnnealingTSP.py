@@ -1,5 +1,6 @@
 from random import random
 from random import shuffle
+from random import sample
 import numpy as np
 from numpy.random import randint
 import matplotlib.pyplot as plt
@@ -108,8 +109,8 @@ class SimulatedAnnealing:
         new_state = SingleTour()
         new_state.set_tour(actual_state.tour)
         # we have to swap 2 cities at random
-        random_index1 = randint(0, new_state.get_tour_size())
-        random_index2 = randint(0, new_state.get_tour_size())
+        # fixed: sample() gives 2 DIFFERENT indexes (with randint both could be the same and the swap did nothing)
+        random_index1, random_index2 = sample(range(new_state.get_tour_size()), 2)
 
         new_state.swap(random_index1, random_index2)
 
@@ -119,9 +120,11 @@ class SimulatedAnnealing:
         xs = []
         ys = []
 
-        self.best_state.tour.append(self.best_state.tour[0])
+        # fixed: the closed tour is built on a copy - the old code appended the first city to best_state.tour
+        # itself, so a second call of plot_solution (or of get_distance) used a modified tour
+        closed_tour = self.best_state.tour + [self.best_state.tour[0]]
 
-        for city in self.best_state.tour:
+        for city in closed_tour:
             xs.append(city.x)
             ys.append(city.y)
 

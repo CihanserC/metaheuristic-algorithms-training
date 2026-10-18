@@ -3,7 +3,6 @@ from numpy.random import randint
 
 TOURNAMENT_SIZE = 10
 CAPACITY = 8
-CHROMOSOME_LENGTH = 4
 
 
 class Individual:
@@ -44,14 +43,8 @@ class Population:
         self.individuals = [Individual(weights, values) for _ in range(population_size)]
 
     def get_fittest(self):
-
-        fittest = self.individuals[0]
-
-        for individual in self.individuals[1:]:
-            if individual.get_fitness() > fittest.get_fitness():
-                fittest = individual
-
-        return fittest
+        # fixed: the fitness is calculated once per individual (it was recalculated in every comparison)
+        return max(self.individuals, key=lambda individual: individual.get_fitness())
 
     def get_fittest_elitism(self, n):
         self.individuals.sort(key=lambda ind: ind.get_fitness(), reverse=True)
@@ -86,7 +79,8 @@ class GeneticAlgorithm:
             generation_counter += 1
             print('Generation #%s - fittest is: %s with fitness value %s' % (
                 generation_counter, pop.get_fittest(), pop.get_fittest().get_fitness()))
-            pop = algorithm.evolve_population(pop)
+            # fixed: self.evolve_population (it used the global variable "algorithm")
+            pop = self.evolve_population(pop)
 
         print('Solution found...')
         print(pop.get_fittest())
@@ -98,7 +92,10 @@ class GeneticAlgorithm:
         # elitism: the top fittest individuals from previous population survive
         # so we copy the top 5 individuals to the next iteration (next population)
         # in this case the population fitness can not decrease during the iterations
-        next_population.individuals.extend(population.get_fittest_elitism(self.elitism_param))
+        # fixed: the elite is stored at the FIRST indexes (it was appended with extend() behind the random
+        # individuals, so the first 5 slots stayed random and the elite ended up outside the population size)
+        for index, individual in enumerate(population.get_fittest_elitism(self.elitism_param)):
+            next_population.save_individual(index, individual)
 
         # crossover
         for index in range(self.elitism_param, next_population.get_size()):
@@ -107,7 +104,8 @@ class GeneticAlgorithm:
             next_population.save_individual(index, self.crossover(first, second))
 
         # mutation
-        for individual in next_population.individuals:
+        # fixed: the elite is not mutated - otherwise the best individuals could be damaged again
+        for individual in next_population.individuals[self.elitism_param:]:
             self.mutate(individual)
 
         return next_population
@@ -115,8 +113,15 @@ class GeneticAlgorithm:
     def crossover(self, offspring1, offspring2):
         cross_individual = Individual(self.weights, self.values)
 
-        start = randint(CHROMOSOME_LENGTH)
-        end = randint(CHROMOSOME_LENGTH)
+        # fixed: the crossover_rate parameter was never used - now the crossover happens only with this
+        # probability, otherwise the child is a copy of the first parent
+        if uniform(0, 1) > self.crossover_rate:
+            cross_individual.genes = offspring1.genes[:]
+            return cross_individual
+
+        # fixed: the chromosome length is the number of the items (it was the constant CHROMOSOME_LENGTH = 4)
+        start = randint(len(self.values))
+        end = randint(len(self.values))
 
         if start > end:
             start, end = end, start
@@ -126,7 +131,7 @@ class GeneticAlgorithm:
         return cross_individual
 
     def mutate(self, individual):
-        for index in range(CHROMOSOME_LENGTH):
+        for index in range(len(self.values)):
             if uniform(0, 1) <= self.mutation_rate:
                 individual.genes[index] = randint(0, 2)
 
@@ -136,7 +141,9 @@ class GeneticAlgorithm:
         new_population = Population(TOURNAMENT_SIZE, self.weights, self.values)
 
         for i in range(new_population.get_size()):
-            random_index = randint(new_population.get_size())
+            # fixed: the random index was drawn from range(TOURNAMENT_SIZE) so only the first 10 individuals of
+            # the population could ever be selected - now it is drawn from the whole population
+            random_index = randint(actual_population.get_size())
             new_population.save_individual(i, actual_population.get_individual(random_index))
 
         return new_population.get_fittest()
@@ -149,4 +156,3 @@ if __name__ == '__main__':
 
     algorithm = GeneticAlgorithm(w, v, 50, 0.85, 0.015)
     algorithm.run()
-

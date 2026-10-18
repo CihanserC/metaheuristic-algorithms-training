@@ -1,6 +1,5 @@
 from random import uniform
 from numpy.random import randint
-import matplotlib.pyplot as plt
 
 SOLUTION_SEQUENCE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 TOURNAMENT_SIZE = 20
@@ -11,7 +10,8 @@ CHROMOSOME_LENGTH = 10
 class Individual:
 
     def __init__(self):
-        self.genes = [randint(1, CHROMOSOME_LENGTH) for _ in range(CHROMOSOME_LENGTH)]
+        # fixed: randint(1, ...) never produced the gene 0 although the solution contains a 0
+        self.genes = [randint(0, CHROMOSOME_LENGTH) for _ in range(CHROMOSOME_LENGTH)]
 
     def get_fitness(self):
 
@@ -34,14 +34,8 @@ class Population:
         self.individuals = [Individual() for _ in range(population_size)]
 
     def get_fittest(self):
-
-        fittest = self.individuals[0]
-
-        for individual in self.individuals[1:]:
-            if individual.get_fitness() > fittest.get_fitness():
-                fittest = individual
-
-        return fittest
+        # fixed: the fitness is calculated once per individual (it was recalculated in every comparison)
+        return max(self.individuals, key=lambda individual: individual.get_fitness())
 
     def get_size(self):
         return self.population_size
@@ -69,7 +63,8 @@ class GeneticAlgorithm:
             generation_counter += 1
             print('Generation #%s - fittest is: %s with fitness value %s' % (
                 generation_counter, pop.get_fittest(), pop.get_fittest().get_fitness()))
-            pop = algorithm.evolve_population(pop)
+            # fixed: self.evolve_population (it used the global variable "algorithm")
+            pop = self.evolve_population(pop)
 
         print('Solution found...')
         print(pop.get_fittest())
@@ -92,6 +87,13 @@ class GeneticAlgorithm:
 
     def crossover(self, offspring1, offspring2):
         cross_individual = Individual()
+
+        # fixed: the crossover_rate parameter was never used - now the crossover happens only with this
+        # probability, otherwise the child is a copy of the first parent
+        if uniform(0, 1) > self.crossover_rate:
+            cross_individual.genes = offspring1.genes[:]
+            return cross_individual
+
         start = randint(CHROMOSOME_LENGTH)
         end = randint(CHROMOSOME_LENGTH)
 
@@ -107,12 +109,15 @@ class GeneticAlgorithm:
             if uniform(0, 1) <= self.mutation_rate:
                 individual.genes[index] = randint(CHROMOSOME_LENGTH)
 
+    # this is called tournament selection
     def random_selection(self, actual_population):
 
         new_population = Population(TOURNAMENT_SIZE)
 
         for i in range(new_population.get_size()):
-            random_index = randint(new_population.get_size())
+            # fixed: the random index was drawn from range(TOURNAMENT_SIZE) so only the first 20 individuals of
+            # the population could ever be selected - now it is drawn from the whole population
+            random_index = randint(actual_population.get_size())
             new_population.save_individual(i, actual_population.get_individual(random_index))
 
         return new_population.get_fittest()

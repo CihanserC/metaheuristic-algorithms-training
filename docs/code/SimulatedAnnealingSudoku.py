@@ -11,9 +11,12 @@ BOX_SIZE = 3
 # a single solution (configuration)
 class SingleSolution:
 
-    def __init__(self, table):
+    def __init__(self, table, fixed=None):
         self.table = deepcopy(table)
-        self.original_table = deepcopy(table)
+        # fixed: we remember which cells are the given digits. The old code kept a copy of the table it was
+        # created from - for every new state that was the already FILLED table, so every cell looked "original"
+        # and the given digits could be swapped away
+        self.fixed = fixed if fixed is not None else [[cell != 0 for cell in row] for row in table]
 
     # we have to generate random integers for the empty cells
     def generate_solution(self):
@@ -38,15 +41,21 @@ class SingleSolution:
                             self.table[row_offset + i][col_offset + j] = nums.pop()
 
     def mutate(self):
-        row_offset = (randint(0, TABLE_SIZE-1) // BOX_SIZE) * BOX_SIZE
-        col_offset = (randint(0, TABLE_SIZE - 1) // BOX_SIZE) * BOX_SIZE
+        # fixed: only the cells which are NOT given can be swapped, and we look for a box with at least 2 of them
+        # (sample() raised an error for a box with fewer free cells)
+        while True:
+            row_offset = (randint(0, TABLE_SIZE - 1) // BOX_SIZE) * BOX_SIZE
+            col_offset = (randint(0, TABLE_SIZE - 1) // BOX_SIZE) * BOX_SIZE
 
-        indexes = []
+            indexes = []
 
-        for i in range(BOX_SIZE):
-            for j in range(BOX_SIZE):
-                if self.original_table[row_offset + i][col_offset + j] != 0:
-                    indexes.append([row_offset + i, col_offset + j])
+            for i in range(BOX_SIZE):
+                for j in range(BOX_SIZE):
+                    if not self.fixed[row_offset + i][col_offset + j]:
+                        indexes.append([row_offset + i, col_offset + j])
+
+            if len(indexes) >= 2:
+                break
 
         pair1, pair2 = sample(indexes, 2)
         self.table[pair1[0]][pair1[1]], self.table[pair2[0]][pair2[1]] = \
@@ -115,7 +124,7 @@ class SimulatedAnnealing:
     # swap 2 non-constant items in a single box at random
     @staticmethod
     def generate_next_state(actual_state):
-        new_state = SingleSolution(actual_state.table)
+        new_state = SingleSolution(actual_state.table, actual_state.fixed)
         new_state.mutate()
         return new_state
 

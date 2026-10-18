@@ -10,7 +10,8 @@ CHROMOSOME_LENGTH = 10
 class Individual:
 
     def __init__(self):
-        self.genes = [randint(1, CHROMOSOME_LENGTH) for _ in range(CHROMOSOME_LENGTH)]
+        # fixed: randint(1, ...) never produced the gene 0 although the solution contains a 0
+        self.genes = [randint(0, CHROMOSOME_LENGTH) for _ in range(CHROMOSOME_LENGTH)]
 
     def get_fitness(self):
 
@@ -36,19 +37,12 @@ class Population:
         self.individuals = [Individual() for _ in range(population_size)]
 
     def get_fittest(self):
-
-        fittest = self.individuals[0]
-
-        for individual in self.individuals[1:]:
-            if individual.get_fitness() > fittest.get_fitness():
-                fittest = individual
-
-        return fittest
+        # fixed: the fitness is calculated once per individual (it was recalculated in every comparison)
+        return max(self.individuals, key=lambda individual: individual.get_fitness())
 
     def get_fittest_elitism(self, n):
+        # fixed: the debug prints of the whole population were removed
         self.individuals.sort(key=lambda ind: ind.get_fitness(), reverse=True)
-        print(self.individuals)
-        print(self.individuals[:n])
         return self.individuals[:n]
 
     def get_size(self):
@@ -78,7 +72,8 @@ class GeneticAlgorithm:
             generation_counter += 1
             print('Generation #%s - fittest is: %s with fitness value %s' % (
                 generation_counter, pop.get_fittest(), pop.get_fittest().get_fitness()))
-            pop = algorithm.evolve_population(pop)
+            # fixed: self.evolve_population (it used the global variable "algorithm")
+            pop = self.evolve_population(pop)
 
         print('Solution found...')
         print(pop.get_fittest())
@@ -90,7 +85,10 @@ class GeneticAlgorithm:
         # elitism: the top fittest individuals from previous population survive
         # so we copy the top 5 individuals to the next iteration (next population)
         # in this case the population fitness can not decrease during the iterations
-        next_population.individuals.extend(population.get_fittest_elitism(self.elitism_param))
+        # fixed: the elite is stored at the FIRST indexes (it was appended with extend() behind the random
+        # individuals, so the first 5 slots stayed random and the elite ended up outside the population size)
+        for index, individual in enumerate(population.get_fittest_elitism(self.elitism_param)):
+            next_population.save_individual(index, individual)
 
         # crossover
         for index in range(self.elitism_param, next_population.get_size()):
@@ -99,14 +97,20 @@ class GeneticAlgorithm:
             next_population.save_individual(index, self.crossover(first, second))
 
         # mutation
-        for individual in next_population.individuals:
+        # fixed: the elite is not mutated - otherwise the best individuals could be damaged again
+        for individual in next_population.individuals[self.elitism_param:]:
             self.mutate(individual)
 
-        print(next_population)
         return next_population
 
     def crossover(self, offspring1, offspring2):
         cross_individual = Individual()
+
+        # fixed: the crossover_rate parameter was never used - now the crossover happens only with this
+        # probability, otherwise the child is a copy of the first parent
+        if uniform(0, 1) > self.crossover_rate:
+            cross_individual.genes = offspring1.genes[:]
+            return cross_individual
 
         start = randint(CHROMOSOME_LENGTH)
         end = randint(CHROMOSOME_LENGTH)
@@ -129,7 +133,9 @@ class GeneticAlgorithm:
         new_population = Population(TOURNAMENT_SIZE)
 
         for i in range(new_population.get_size()):
-            random_index = randint(new_population.get_size())
+            # fixed: the random index was drawn from range(TOURNAMENT_SIZE) so only the first 20 individuals of
+            # the population could ever be selected - now it is drawn from the whole population
+            random_index = randint(actual_population.get_size())
             new_population.save_individual(i, actual_population.get_individual(random_index))
 
         return new_population.get_fittest()

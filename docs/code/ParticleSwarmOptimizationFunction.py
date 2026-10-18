@@ -18,7 +18,9 @@ class Particle:
         # N dimensions: (x1,x2,x3...xN) coordinates
         self.position = self.initialize(dimensions)
         # velocity parameter of the particle
-        self.velocity = self.initialize(dimensions)
+        # fixed: the velocity is a small fraction (10%) of the interval. The old code drew it from the whole
+        # interval [min_x, max_x] so in the first step the particles jumped across the interval to the bounds
+        self.velocity = 0.1 * (np.array([random() for _ in range(dimensions)]) * 2 - 1) * (max_x - min_x)
         # we have to track the global best position
         self.best_position = self.position
         # depending on the problem [it is the f(best_position)]
@@ -65,6 +67,11 @@ class ParticleSwarmOptimization:
     def run(self):
 
         counter = 0
+
+        # fixed: the swarm best and the particle bests are evaluated BEFORE the first move. The old code started
+        # with the arbitrary position of the first particle as the "global best" (value 1e10)
+        self.set_best()
+        self.set_particle_best()
 
         while counter < self.max_iteration:
             counter += 1
