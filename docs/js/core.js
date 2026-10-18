@@ -35,7 +35,7 @@
     g_evo: { tr: 'Evrimsel / Dağılım Tabanlı', en: 'Evolutionary / Distribution-Based' }, g_nature: { tr: 'Doğadan Esinlenen', en: 'Nature-Inspired' },
     g_start: { tr: 'Başlangıç', en: 'Start' }, g_repo: { tr: 'Repodaki kodlardan', en: 'From the repository code' }, g_added: { tr: 'Eklenen algoritmalar', en: 'Added algorithms' },
     badgeRepo: { tr: 'Repodaki kod', en: 'Repository code' }, badgeAdded: { tr: 'Eklenen kod', en: 'Added code' },
-    secIntuition: { tr: 'Sezgi', en: 'Intuition' }, secSteps: { tr: 'Nasıl çalışır?', en: 'How does it work?' },
+    secIntuition: { tr: 'Sezgi', en: 'Intuition' }, secVideo: { tr: 'Video', en: 'Video' }, videoNote: { tr: 'YouTube videoları sayfa içinde oynatılır; internet bağlantısı gerekir.', en: 'The YouTube videos play inside the page; an internet connection is required.' }, secSteps: { tr: 'Nasıl çalışır?', en: 'How does it work?' },
     secDemo: { tr: 'Canlı animasyon', en: 'Live animation' }, secCode: { tr: 'Kod', en: 'Code' },
     secNotes: { tr: 'Kod notları', en: 'Code notes' }, secParams: { tr: 'Parametrelerin etkisi', en: 'Effect of the parameters' },
     secPros: { tr: 'Artıları ve eksileri', en: 'Strengths and weaknesses' }, pros: { tr: 'Artıları', en: 'Strengths' }, cons: { tr: 'Eksileri', en: 'Weaknesses' },
@@ -232,9 +232,14 @@
       id: d.id, group: d.group, title: d.title, nav: d.nav || d.title, origin: d.origin, blurb: d.blurb,
       render(root) {
         root.append(h('header', { class: 'pagehead' },
-          h('span', { class: 'badge ' + d.origin }, MH.ui(d.origin === 'repo' ? 'badgeRepo' : 'badgeAdded')),
           h('h1', null, t(d.title)), h('p', { class: 'lead', html: t(d.tagline) })));
         root.append(section(UI.secIntuition, ...paras(per(d.intuition))));
+        const vids = (window.MH_VIDEOS || {})[d.id];
+        if (vids && vids.length) {
+          root.append(section(UI.secVideo, h('div', { class: 'videos' }, vids.map(([id, by, title, note]) => h('figure', { class: 'video' },
+            h('div', { class: 'video-frame' }, h('iframe', { src: 'https://www.youtube-nocookie.com/embed/' + id + '?rel=0', title: title, loading: 'lazy', allow: 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share', allowfullscreen: '', referrerpolicy: 'strict-origin-when-cross-origin' })),
+            h('figcaption', null, h('b', null, title), ' · ' + by, note ? h('span', { class: 'vnote' }, t(note)) : null))))));
+        }
         root.append(section(UI.secSteps, h('ol', { class: 'steps' }, per(d.steps).map(s => h('li', { html: s })))));
         const demo = h('div', { class: 'demo' });
         root.append(section(UI.secDemo, demo));
@@ -279,8 +284,8 @@
     applyTheme(store('mh-theme') || (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
     const langBtn = document.getElementById('btn-lang'), themeBtn = document.getElementById('btn-theme');
     const syncBtns = () => {
-      langBtn.textContent = MH.lang === 'tr' ? 'EN' : 'TR';
-      langBtn.title = MH.lang === 'tr' ? 'Switch to English' : 'Türkçe\'ye geç';
+      langBtn.textContent = MH.lang.toUpperCase();   // shows the CURRENT language
+      langBtn.title = MH.lang === 'tr' ? 'Türkçe (İngilizce\'ye geçmek için tıklayın)' : 'English (click to switch to Turkish)';
       themeBtn.textContent = MH.theme === 'dark' ? '☀' : '☾';
       themeBtn.title = MH.theme === 'dark' ? 'Light theme / Aydınlık tema' : 'Dark theme / Karanlık tema';
       document.getElementById('site-title').textContent = MH.ui('siteTitle');

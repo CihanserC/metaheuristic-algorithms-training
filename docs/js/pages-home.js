@@ -34,17 +34,13 @@
       root.append(h('header', { class: 'pagehead' },
         h('h1', null, t({ tr: 'Metasezgisel algoritmaları görerek öğrenin', en: 'Learn metaheuristics by watching them think' })),
         h('p', { class: 'lead' }, t({
-          tr: 'Her algoritma için sezgi, adım adım çalışma mantığı, canlı animasyon ve çalıştırılabilir Python kodu aynı sayfada. Kodlar repodaki dosyalardan; ayrıca repoda olmayan 22 algoritma daha eklendi.',
-          en: 'For every algorithm: the intuition, a step-by-step explanation, a live animation and runnable Python code on one page. The code comes from the repository files, plus 22 more algorithms that were not in the repository.'
+          tr: 'Her algoritma için sezgi, adım adım çalışma mantığı, canlı animasyon ve çalıştırılabilir Python kodu aynı sayfada. Python kodlarını çalıştırıp inceleyebilirsiniz.',
+          en: 'For every algorithm: the intuition, a step-by-step explanation, a live animation and runnable Python code on one page. You can read and run the Python code.'
         }))));
       const mk = (pg) => h('a', { class: 'card', href: '#/' + pg.id },
-        h('span', { class: 'badge ' + pg.origin }, MH.ui(pg.origin === 'repo' ? 'badgeRepo' : 'badgeAdded')),
         h('h3', null, t(pg.title)), h('p', null, t(pg.blurb)));
-      for (const [label, origin] of [[MH.UI.g_repo, 'repo'], [MH.UI.g_added, 'added']]) {
-        const list = MH.pages.filter(p => p.origin === origin);
-        if (!list.length) continue;
-        root.append(h('section', { class: 'sec' }, h('h2', null, t(label)), h('div', { class: 'cards' }, list.map(mk))));
-      }
+      const list = MH.pages.filter(p => p.blurb);
+      root.append(h('section', { class: 'sec' }, h('h2', null, t({ tr: 'Algoritmalar', en: 'Algorithms' }) + ' (' + list.length + ')'), h('div', { class: 'cards' }, list.map(mk))));
       root.append(h('section', { class: 'sec' }, h('h2', null, t({ tr: 'Nasıl kullanılır?', en: 'How to use' })),
         h('ul', { class: 'notes' },
           h('li', { html: t({ tr: 'Animasyonlarda <b>Oynat</b> ile başlayın, <b>Adım</b> ile algoritmanın tek bir iterasyonunu izleyin.', en: 'Press <b>Play</b> in the animations, or <b>Step</b> to watch a single iteration of the algorithm.' }) }),

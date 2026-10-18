@@ -2,7 +2,7 @@
 
 Interactive, bilingual (TR / EN) web training on metaheuristic algorithms. Every algorithm has an intuition,
 a step-by-step explanation, a **live animation** with adjustable parameters, and **runnable Python code** with
-line-by-line notes. Light and dark themes are supported.
+line-by-line notes and hand-picked explainer videos (YouTube, each at most 15 minutes, embedded on the page). Light and dark themes are supported.
 
 Etkileşimli, iki dilli (TR / EN) metasezgisel algoritma eğitimi: sezgi, adım adım anlatım, parametreleri
 değiştirilebilen canlı animasyon ve satır satır açıklamalı çalıştırılabilir Python kodu. Açık / koyu tema desteklenir.
